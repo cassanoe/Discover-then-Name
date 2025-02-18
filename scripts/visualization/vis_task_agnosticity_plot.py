@@ -21,6 +21,7 @@ embeddings_path = osp.join(args.vocab_dir,f"embeddings_{args.img_enc_name_for_sa
 vocab_txt_path  = osp.join(args.vocab_dir, "clipdissect_20k.txt")
 
 method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=True)
+# method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=False, use_sae_from_args=True, split='val')
 vocab_specific_embedding = method_obj.all_embeddings[0]
 name_map = {"imagenet": "ImageNet", "cifar10": "CIFAR10", "cifar100": "CIFAR100", "places365": "Places365", "cc3m": "CC3M"}
 
@@ -30,7 +31,8 @@ plt.rcParams.update({
     "font.sans-serif": "Helvetica",
 })
 
-dataset_list = ['imagenet', 'cifar10', 'cifar100', 'places365']
+# dataset_list = ['imagenet', 'cifar10', 'cifar100', 'places365']
+dataset_list = ['places365', 'places365', 'places365', 'places365']
 
 bpad = 50
 spad = 5
@@ -82,17 +84,21 @@ def draw_in_canvas(names, fname, cols=4):
                 start_idx = names[grid_idx][0]*topk
                 end_idx = start_idx + cols
                 img_ids = top_img_ids_dict[dataset_list[row_idx]][start_idx:end_idx]
+
+                print(f"start_idx: {start_idx}, end_idx: {end_idx}")
+                print(f"len(img_ids): {len(img_ids)}, subcols: {subcols}")
               
                 for col_idx, cell in enumerate(row):                    
-                    img_id = img_ids[col_idx]
-
-                    if img_id !=-1:
-                        img = real_dataset_list[row_idx][img_id][0].unsqueeze(0)
-                        img = un_normalize(img)[0].detach().cpu().permute(1, 2, 0).numpy()
-                        cell.imshow(img.clip(0, 1))
-                        
-                        if not grid_idx and not col_idx:
-                            cell.set_ylabel(name_map[dataset_list[row_idx]], rotation=0, fontsize=fontsize)       
+                    if col_idx < len(img_ids):
+                        img_id = img_ids[col_idx]
+    
+                        if img_id !=-1:
+                            img = real_dataset_list[row_idx][img_id][0].unsqueeze(0)
+                            img = un_normalize(img)[0].detach().cpu().permute(1, 2, 0).numpy()
+                            cell.imshow(img.clip(0, 1))
+                            
+                            if not grid_idx and not col_idx:
+                                cell.set_ylabel(name_map[dataset_list[row_idx]], rotation=0, fontsize=fontsize)       
     canvas.save(fname)
 
 concept_names = torch.load(osp.join(data_dir, "concept_names.pt"))

@@ -4,6 +4,8 @@ from dncbm import utils
 from dncbm import config
 import os
 
+import shutil
+
 parser = arg_parser.get_common_parser()
 
 args = parser.parse_args()
@@ -13,8 +15,14 @@ embeddings_path = os.path.join(
     args.vocab_dir, f"embeddings_{args.img_enc_name_for_saving}_clipdissect_20k.pth")
 vocab_txt_path = os.path.join(args.vocab_dir, f"clipdissect_20k.txt")
 
+# Works for RN50
 method_obj = method_utils.get_method(
     "ours", args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=True)
+
+# Necessary for every model except for RN50
+# method_obj = method_utils.get_method(
+#     "ours", args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=False, use_sae_from_args=True) # True)
+
 concept_name_similarity_matrix = method_obj.get_concept_name_similarity_matrix()[
     0]
 all_concept_names = method_obj.vocab_txt_all[0]
@@ -25,3 +33,6 @@ with open(os.path.join(args.save_dir["img"], f"concept_names.csv"), "w") as f:
         name = all_concept_names[top_concept_idxs[idx]]
         print(f"{idx},{name}")
         f.write(f"{idx},{name}\n")
+
+destination = os.path.join(args.save_dir["img"], f"concept_names_seed{args.seed}.csv")
+shutil.copy2(os.path.join(args.save_dir["img"], f"concept_names.csv"), destination)

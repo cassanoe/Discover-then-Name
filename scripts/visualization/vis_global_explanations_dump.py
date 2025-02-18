@@ -24,7 +24,8 @@ topk=10 # how many concepts to show per class
 grid_dim = 3
 num_samples = grid_dim**2
 
-method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=True)
+# method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=True)
+method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=False, use_sae_from_args=True, split='val')
 all_concepts = method_obj.get_concepts()
 all_cocnepts = all_concepts.to(args.device)
 all_labels = method_obj.get_labels()

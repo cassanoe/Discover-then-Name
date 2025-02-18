@@ -27,6 +27,9 @@ class FetchFeatures:
 
         assert (train_idxs.shape[0]+train_val_idxs.shape[0] == randperm.shape[0] == len(train_dataset))
 
+        if not os.path.exists(os.path.join(self.args.probe_split_idxs_dir['img'])):
+            os.makedirs(self.args.probe_split_idxs_dir['img'], exist_ok=True)
+
         torch.save(train_idxs, os.path.join(
             self.args.probe_split_idxs_dir['img'], "train_idxs.pth"))
         torch.save(train_val_idxs, os.path.join(
@@ -69,6 +72,9 @@ class FetchFeatures:
 
         train_dataset = get_probe_dataset(
             probe_dataset, 'train', args.probe_dataset_root_dir, self.preprocess)
+
+        print(f"train_dataset: {train_dataset}")
+
         train_loader = torch.utils.data.DataLoader(
             train_dataset, batch_size=args.batch_size, shuffle=False)
         output, labels = self.get_probe_out(train_loader)
@@ -88,7 +94,7 @@ class FetchFeatures:
         torch.save(train_labels, os.path.join(
             args.probe_split_idxs_dir['img'], "all_labels_train.pth"))
         torch.save(train_val_labels, os.path.join(
-            args.probe_split_idxs_dir['img'], "all_labels_train.pth"))
+            args.probe_split_idxs_dir['img'], "all_labels_train_val.pth"))
         del output
 
         # val split
@@ -114,3 +120,4 @@ if __name__ == '__main__':
     fetch_act = FetchFeatures(args)
     # to save probe_features
     fetch_act.save_probe_features(args.probe_dataset)
+    print('Done.')

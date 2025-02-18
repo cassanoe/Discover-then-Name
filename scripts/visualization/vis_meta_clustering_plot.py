@@ -11,7 +11,7 @@ from dncbm.visualization.canvas import Canvas
 parser = arg_parser.get_common_parser()
 args = parser.parse_args()
 
-n_clusters_dict = {'imagenet': 1300, 'cifar10': 20, 'places365': 500}
+n_clusters_dict = {'imagenet': 1300, 'cifar10': 20, 'places365': 500, 'cifar100': 20}
 args.n_clusters = n_clusters_dict[args.probe_dataset]
 common_init(args, disable_make_dirs=True)
 
@@ -79,3 +79,4 @@ for fig_idx in range(clusters_to_vis//3):
     canvas.save(f"clusters_{fig_idx}.pdf")
     plt.close()
     
+print("Done!")

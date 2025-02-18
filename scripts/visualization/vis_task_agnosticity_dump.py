@@ -19,7 +19,8 @@ embeddings_path = osp.join(args.vocab_dir,f"embeddings_{args.img_enc_name_for_sa
 vocab_txt_path  = osp.join(args.vocab_dir, "clipdissect_20k.txt")
 
 topk=500
-dataset_list = ['cifar10', 'cifar100','imagenet', 'places365']
+# dataset_list = ['cifar10', 'cifar100','imagenet', 'places365']
+dataset_list = ['places365', 'places365', 'places365', 'places365']
 _, preprocess = clip.load(args.img_enc_name[5:], device=args.device)
 un_normalize = torchvision.transforms.Normalize((-0.48145466/0.26862954, -0.4578275/0.26130258, -0.40821073/0.27577711), (1/0.26862954, 1/0.26130258, 1/0.27577711))
 img_ids = {dataset: [] for dataset in dataset_list}
@@ -49,11 +50,14 @@ for dataset_idx, dataset_name in enumerate(dataset_list):
     common_init(args, disable_make_dirs=True)
     
     dataset = get_probe_dataset(args.probe_dataset, args.probe_split, args.probe_dataset_root_dir, preprocess_fn=preprocess)
+
     method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=True)
+    # method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=False, use_sae_from_args=True, split='val')
 
     sim_vals, vocab_ids, concept_names = dump_for_our_method()
 
     concept_strengths = method_obj.get_concepts()
+    concept_strengths = concept_strengths.float()
     
     _, top_img_indices = torch.topk(concept_strengths, k=topk, dim=0)
 

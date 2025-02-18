@@ -15,7 +15,12 @@ def save_concept_strengths(args, is_cc3m=False):
         features_path = os.path.join(args.data_dir_activations["img"], args.probe_split)
     else:
         features_path = os.path.join(args.probe_data_dir_activations["img"], args.probe_split)
-    all_features = torch.load(features_path)
+        file = args.probe_split + '.pth'
+        fp = os.path.join(args.probe_data_dir_activations["img"], file) 
+    print(f"Loading features from: {features_path}")
+
+    all_features = torch.load(fp)
+    # all_features = torch.load(features_path)
 
     print(f"Loaded concepts from: {features_path}")
 
@@ -50,3 +55,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     common_init(args)
     save_concept_strengths(args, is_cc3m= False)
+    print('Done.')

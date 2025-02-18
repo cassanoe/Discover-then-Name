@@ -1,4 +1,4 @@
-# import sys
+import sys
 import torchvision
 import os.path as osp
 import torch
@@ -119,14 +119,20 @@ def common_init(args, disable_make_dirs=False):
     args.data_dir_activations = {}
     args.data_dir_activations["img"] = osp.join(
         args.data_dir_root, 'activations_img', args.sae_dataset, args.img_enc_name_for_saving, args.hook_points[0])
+    # args.data_dir_activations["img"] = osp.join(
+    #     args.data_dir_root, args.sae_dataset, args.img_enc_name_for_saving, args.hook_points[0])
 
     args.probe_data_dir_activations = {}
     args.probe_data_dir_activations["img"] = osp.join(
         args.data_dir_root, 'activations_img', args.probe_dataset, args.img_enc_name_for_saving, args.hook_points[0])
+    # args.probe_data_dir_activations["img"] = osp.join(
+    #     args.data_dir_root, args.probe_dataset, args.img_enc_name_for_saving, args.hook_points[0])
 
     args.probe_split_idxs_dir = {}
     args.probe_split_idxs_dir["img"] = osp.join(
         args.data_dir_root, 'activations_img', args.probe_dataset)
+    # args.probe_split_idxs_dir["img"] = osp.join(
+    #     args.data_dir_root, args.probe_dataset)
     
     args.ae_input_dim_dict_key = {}
     args.ae_input_dim_dict_key["img"] = f"{args.img_enc_name_for_saving}_{args.hook_points[0]}"
@@ -193,10 +199,14 @@ def get_probe_dataset(probe_dataset, probe_split, probe_dataset_root_dir, prepro
     elif probe_dataset == "places365":
         if probe_split == 'train':
             suffix = '-standard'
+            # My addition
+            download = False
         else:
             suffix = ''
+            # My addition
+            download = False
         dataset = torchvision.datasets.Places365(
-            root=os.path.join(probe_dataset_root_dir), split=f"{probe_split}{suffix}", download=False, small=True, transform=preprocess_fn)
+            root=os.path.join(probe_dataset_root_dir), split=f"{probe_split}{suffix}", download=download, small=True, transform=preprocess_fn)
     elif probe_dataset == "cifar10":
         dataset = torchvision.datasets.CIFAR10(
             root=os.path.join(probe_dataset_root_dir), train=probe_split == "train", download=False, transform=preprocess_fn)

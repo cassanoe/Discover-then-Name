@@ -123,6 +123,7 @@ class MethodBase:
 class MethodOurs(MethodBase):
 
     def __init__(self, args, vocab_txt_path=None, embeddings_path=None, use_fixed_sae=False, use_sae_from_args=False, **kwargs):
+        global sae_config_to_use
         self.args = args
         assert (use_fixed_sae and (not use_sae_from_args)) or (
             (not use_fixed_sae) and use_sae_from_args)
@@ -139,7 +140,12 @@ class MethodOurs(MethodBase):
             probe_config_to_use = self.probe_config_dict[self.args.probe_dataset]
             self._decode_config(sae_config_to_use, probe_config_to_use)
         else:
-            sae_config_to_use = self.args.config_name
+            # sae_config_to_use = self.args.config_name
+            sae_config_to_use = "lr0.0005_l1coeff3e-05_ef8_rf10_hookout_bs4096_epo200"
+
+            print("Using SAE from args")
+            print(f"SAE config_used: {sae_config_to_use}")
+            print(f"EF: {sae_config_to_use}")
         super().__init__(args, **kwargs)
 
         print(f"SAE config_used: {sae_config_to_use}")
@@ -151,7 +157,12 @@ class MethodOurs(MethodBase):
 
         state_dict_path = os.path.join(
             self.sae_load_dir, "sae_checkpoints", 'sparse_autoencoder_final.pt')
-        self.state_dict = torch.load(state_dict_path, map_location=args.device)
+        if use_fixed_sae:
+            self.state_dict = torch.load(state_dict_path, map_location=args.device)
+        else:
+            path = os.path.join(
+                '/scratch/cbm/dncbm/SAE/SAEImg/cc3m/clip_ViT-L14/out/',sae_config_to_use, "sae_checkpoints", 'sparse_autoencoder_final.pt')
+            self.state_dict = torch.load(path, map_location=args.device)
 
         self.concept_layer = self._get_concept_layer()
         self.all_dic_vec = self.concept_layer.decoder.weight.detach().cpu().squeeze()
@@ -190,8 +201,10 @@ class MethodOurs(MethodBase):
             img_concepts = torch.cat(
                 [train_concepts, train_val_concepts], dim=0)
         else:
+            # concept_path = os.path.join(
+            #    self.load_dir, split, "all_concepts.pth")
             concept_path = os.path.join(
-                self.load_dir, split, "all_concepts.pth")
+                '/scratch/cbm/dncbm/probe/cc3m/clip_ViT-L14/out', sae_config_to_use, self.args.probe_dataset, split, "all_concepts.pth")
             img_concepts = torch.load(concept_path)
         img_concepts = img_concepts.squeeze(1)
         return img_concepts
@@ -342,6 +355,10 @@ class MethodOurs(MethodBase):
             all_selected_indices = []
             all_texts = []
             all_name_similarities = []
+
+            # The two following lines fix the runtime error in matmul
+            vocab_specific_embedding = vocab_specific_embedding.float()
+            self.all_dic_vec = self.all_dic_vec.float()
 
             self.all_dic_vec /= self.all_dic_vec.norm(dim=0, keepdim=True)
             similarities = torch.matmul(

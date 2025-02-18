@@ -28,7 +28,7 @@ common_init(args)
 start_time = time()
 
 
-embeddings_path = f"/BS/language-explanations/work/concept_naming/embeddings_{args.img_enc_name_for_saving}_clipdissect_20k.pth"
+embeddings_path = f"/scratch/cbm/dncbm/vocab/embeddings_{args.img_enc_name_for_saving}_clipdissect_20k.pth"
 args.vocab_specific_embedding = torch.load(embeddings_path).to(args.device)
 
 
@@ -77,18 +77,22 @@ if args.use_wandb:
     print("wandb started!")
 
     wandb_project_name = f"SAEImg_{args.sae_dataset}_{args.img_enc_name_for_saving}_{args.hook_points[0]}_{datetime.datetime.now().strftime('%Y-%m-%d')}{args.save_suffix}"
+    wandb_project_name = wandb_project_name.replace("/", "_")
 
     print(f"wandb started! {wandb_project_name}")
 
     wandb_dir = os.path.join(args.save_dir[args.modality], ".cache/")
     wandb_path = Path(wandb_dir)
     wandb_path.mkdir(exist_ok=True)
+    # wandb.login()
     wandb.init(
         project=wandb_project_name,
-        dir=wandb_dir,
-        name=args.config_name,
-        config=args,
-        entity="text_concept_explanations",)
+        # dir=wandb_dir,
+        name=args.config_name.replace("/", "_"),
+        # name=args.config_name,
+        # config=args,
+        # entity="text_concept_explanations",
+        )
 
     wandb.define_metric("custom_steps")
     wandb.define_metric("train/loss_instability_across_batches",

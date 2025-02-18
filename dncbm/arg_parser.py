@@ -64,5 +64,6 @@ def get_common_parser():
     parser.add_argument("--probe_eval_coverage_freq", type=int, default=1)
     parser.add_argument("--use_wandb", action="store_true", default=False)
     parser.add_argument("--wandb_entity", type=str, default="dncbm")
+    parser.add_argument("--config_name", type=str, default=None)
 
     return parser

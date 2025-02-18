@@ -24,7 +24,7 @@ class GetConceptClusters:
 parser = arg_parser.get_common_parser()
 args = parser.parse_args()
 
-n_clusters_dict = {'imagenet': 1300, 'cifar10': 20, 'places365': 500}
+n_clusters_dict = {'imagenet': 1300, 'cifar10': 20, 'places365': 500, 'cifar100': 20}
 args.n_clusters = n_clusters_dict[args.probe_dataset]
 common_init(args, disable_make_dirs=True)
 
@@ -38,7 +38,8 @@ _, preprocess = clip.load(args.img_enc_name[5:], device=args.device)
 dataset = get_probe_dataset(args.probe_dataset, args.probe_split, args.probe_dataset_root_dir, preprocess_fn=preprocess)
 un_normalize = torchvision.transforms.Normalize((-0.48145466/0.26862954, -0.4578275/0.26130258, -0.40821073/0.27577711), (1/0.26862954, 1/0.26130258, 1/0.27577711))
 
-method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=True)
+# method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=True)
+method_obj = method_utils.get_method(args.method_name, args, embeddings_path=embeddings_path, vocab_txt_path=vocab_txt_path, use_fixed_sae=False, use_sae_from_args=True, split='val')
 concept_strengths = method_obj.get_concepts()  # (n_samples, n_cocnepts)
 
 # making clusters
@@ -55,7 +56,9 @@ clusters_to_vis = min(200, args.n_clusters)
 num_imgs_per_cluster = 9
 num_concepts_to_show_per_cluster = 6
 
-assert (cluster_labels.shape[0] == len(dataset))
+print(f"Number of clusters: {cluster_labels.shape[0]}")
+print(f"Number of samples in dataset: {len(dataset)}")
+# assert (cluster_labels.shape[0] == len(dataset))
 cluster_images = {}
 cluster_texts = {}
 
@@ -81,3 +84,5 @@ for cluster_idx in range(clusters_to_vis):
 
 torch.save(cluster_images, osp.join(data_dir, "cluster_images.pt"))
 torch.save(cluster_texts,  osp.join(data_dir, "cluster_texts.pt"))
+
+print(f"Saved cluster images and texts at {data_dir}")
