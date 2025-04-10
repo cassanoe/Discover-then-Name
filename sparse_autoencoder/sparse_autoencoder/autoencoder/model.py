@@ -108,7 +108,6 @@ class SparseAutoencoder(AbstractAutoencoder):
         # Initialize the components
         self.pre_encoder_bias = TiedBias(self.tied_bias, TiedBiasPosition.PRE_ENCODER)
 
-        torch.manual_seed(seed)
         self.encoder = LinearEncoder(
             input_features=n_input_features,
             learnt_features=n_learned_features,

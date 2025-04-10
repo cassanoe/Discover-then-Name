@@ -65,7 +65,7 @@ class Pipeline:
         log_frequency: PositiveInt = 100,
         metrics: MetricsContainer = default_metrics,
         device: torch.cuda = 'cuda',
-        args=None
+        args=None,
     ) -> None:
 
         self.activation_resampler = activation_resampler
@@ -175,11 +175,19 @@ class Pipeline:
         safe_name = quote_plus(name, safe="_")
         self.checkpoint_directory.mkdir(parents=True, exist_ok=True)
         file_path: Path = self.checkpoint_directory / f"{safe_name}.pt"
+        file_path_seed: Path = self.checkpoint_directory / f"{safe_name}_seed_{self.args.seed}.pt"
 
         torch.save(
             self.autoencoder.state_dict(),
             file_path,
         )
+
+        if is_final:
+            torch.save(
+                self.autoencoder.state_dict(),
+                file_path_seed,
+            )
+
         return file_path
 
     def update_parameters(self, parameter_updates: list[ParameterUpdateResults]) -> None:

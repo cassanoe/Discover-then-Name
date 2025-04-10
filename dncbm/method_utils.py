@@ -156,7 +156,9 @@ class MethodOurs(MethodBase):
             args.probe_cs_save_dir, "..", "..", sae_config_to_use, self.args.probe_dataset)
 
         state_dict_path = os.path.join(
-            self.sae_load_dir, "sae_checkpoints", 'sparse_autoencoder_final.pt')
+            # self.sae_load_dir, "sae_checkpoints", 'sparse_autoencoder_final.pt')
+            self.sae_load_dir, "sae_checkpoints", f'sparse_autoencoder_final_seed_{args.seed}.pt')
+        print(f"Loading SAE checkpoint from: {state_dict_path}")
         if use_fixed_sae:
             self.state_dict = torch.load(state_dict_path, map_location=args.device)
         else:

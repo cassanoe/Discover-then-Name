@@ -31,8 +31,11 @@ top_concept_idxs = concept_name_similarity_matrix.argmax(axis=0)
 with open(os.path.join(args.save_dir["img"], f"concept_names.csv"), "w") as f:
     for idx in range(top_concept_idxs.shape[0]):
         name = all_concept_names[top_concept_idxs[idx]]
-        print(f"{idx},{name}")
+        # print(f"{idx},{name}")
         f.write(f"{idx},{name}\n")
 
-destination = os.path.join(args.save_dir["img"], f"concept_names_seed{args.seed}.csv")
-shutil.copy2(os.path.join(args.save_dir["img"], f"concept_names.csv"), destination)
+with open(os.path.join(args.save_dir["img"], f"concept_names_seed{args.seed}.csv"), "w") as f:
+    for idx in range(top_concept_idxs.shape[0]):
+        name = all_concept_names[top_concept_idxs[idx]]
+        # print(f"{idx},{name}")
+        f.write(f"{idx},{name}\n")
